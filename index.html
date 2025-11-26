@@ -361,4 +361,215 @@
             <div class="form-group">
                 <label for="helpful">Was war besonders hilfreich?</label>
                 <textarea id="helpful" 
-                         placeholder="Welche Module, Aufgaben oder Materialien haben Ihnen besonders geholfen?">
+                         placeholder="Welche Module, Aufgaben oder Materialien haben Ihnen besonders geholfen?"></textarea>
+            </div>
+            
+            <!-- Verbesserungsvorschläge -->
+            <div class="form-group">
+                <label for="improve">Was könnte verbessert werden?</label>
+                <textarea id="improve" 
+                         placeholder="Ihre Verbesserungsvorschläge und konstruktive Kritik..."></textarea>
+            </div>
+            
+            <!-- Was hat gefehlt -->
+            <div class="form-group">
+                <label for="missing">Was hat Ihnen gefehlt?</label>
+                <textarea id="missing" 
+                         placeholder="Welche Themen oder Aspekte sollten ergänzt werden?"></textarea>
+            </div>
+            
+            <!-- KI im Unterricht -->
+            <div class="form-group">
+                <label for="practice" class="required">Werden Sie KI in Ihrem Unterricht einsetzen?</label>
+                <select id="practice" required>
+                    <option value="">Bitte wählen...</option>
+                    <option value="Ja, zeitnah">Ja, ich plane den Einsatz zeitnah</option>
+                    <option value="Ja, später">Ja, aber erst in einiger Zeit</option>
+                    <option value="Vielleicht">Vielleicht, ich bin noch unsicher</option>
+                    <option value="Eher nicht">Eher nicht</option>
+                    <option value="Nutze bereits">Ich nutze KI bereits im Unterricht</option>
+                </select>
+            </div>
+            
+            <!-- Weiterempfehlung -->
+            <div class="form-group">
+                <label for="recommend">Würden Sie die Fortbildung weiterempfehlen?</label>
+                <select id="recommend">
+                    <option value="">Bitte wählen...</option>
+                    <option value="Ja, auf jeden Fall">Ja, auf jeden Fall</option>
+                    <option value="Ja, mit Einschränkungen">Ja, mit Einschränkungen</option>
+                    <option value="Unsicher">Bin unsicher</option>
+                    <option value="Eher nicht">Eher nicht</option>
+                </select>
+            </div>
+            
+            <!-- Weitere Anmerkungen -->
+            <div class="form-group">
+                <label for="additional">Weitere Anmerkungen oder Wünsche</label>
+                <textarea id="additional" 
+                         placeholder="Gibt es noch etwas, das Sie uns mitteilen möchten?"></textarea>
+            </div>
+            
+            <!-- Newsletter -->
+            <div class="checkbox-group">
+                <input type="checkbox" 
+                       id="newsletter" 
+                       value="Ja">
+                <label for="newsletter">Ich möchte über weitere Fortbildungen zum Thema KI im Deutschunterricht informiert werden</label>
+            </div>
+            
+            <button type="submit" id="submitButton">Feedback im Google Formular öffnen</button>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px;">Formular wird vorbereitet...</p>
+            </div>
+            
+            <div class="success-message" id="successMessage">
+                <h3>Google Formular wurde geöffnet!</h3>
+                <p>Bitte klicken Sie im Google Formular auf "Senden", um Ihr Feedback zu übermitteln.</p>
+                <p style="margin-top: 10px;">Falls sich kein neues Fenster geöffnet hat, <a href="#" id="retry-link" style="color: white; text-decoration: underline;">klicken Sie hier</a>.</p>
+            </div>
+        </form>
+        
+        <div class="privacy-box">
+            <strong>Datenschutz:</strong> Ihre Daten werden über Google Forms erfasst und ausschließlich zur Verbesserung dieser Fortbildung verwendet. Eine Weitergabe an Dritte erfolgt nicht.
+        </div>
+    </div>
+    
+    <script>
+        console.log('Feedback Script wird geladen...');
+        
+        // Warte bis DOM vollständig geladen ist
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeFeedbackForm);
+        } else {
+            initializeFeedbackForm();
+        }
+        
+        function initializeFeedbackForm() {
+            console.log('Initialisiere Feedback-Formular...');
+        
+        // Entry IDs mapping
+        const entryIds = {
+            name: 'entry.1119087264',
+            email: 'entry.558433083',
+            role: 'entry.430243974',
+            school: 'entry.1774433741',
+            modules: 'entry.1313887262',
+            rating: 'entry.1934402613',
+            helpful: 'entry.1157693727',
+            improve: 'entry.561237996',
+            missing: 'entry.428643420',
+            practice: 'entry.1998730107',
+            recommend: 'entry.400603721',
+            additional: 'entry.315390676',
+            newsletter: 'entry.552960915'
+        };
+        
+        let prefillUrl = '';
+        
+        // Formular Submit Handler
+        document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Button geklickt! Form submit ausgelöst.');
+            
+            // Validierung
+            if (!this.checkValidity()) {
+                console.log('Validierung fehlgeschlagen - Pflichtfelder prüfen!');
+                this.reportValidity();
+                return;
+            }
+            
+            console.log('Validierung erfolgreich, sammle Daten...');
+            
+            // Sammle Module
+            const moduleCheckboxes = document.querySelectorAll('.module-cb:checked');
+            const modules = Array.from(moduleCheckboxes).map(cb => cb.value).join(', ');
+            
+            // Sammle Formular-Daten
+            const formData = {
+                [entryIds.name]: document.getElementById('name').value,
+                [entryIds.email]: document.getElementById('email').value,
+                [entryIds.role]: document.getElementById('role').value,
+                [entryIds.school]: document.getElementById('school').value,
+                [entryIds.modules]: modules,
+                [entryIds.rating]: document.querySelector('input[name="rating"]:checked')?.value || '',
+                [entryIds.helpful]: document.getElementById('helpful').value,
+                [entryIds.improve]: document.getElementById('improve').value,
+                [entryIds.missing]: document.getElementById('missing').value,
+                [entryIds.practice]: document.getElementById('practice').value,
+                [entryIds.recommend]: document.getElementById('recommend').value,
+                [entryIds.additional]: document.getElementById('additional').value,
+                [entryIds.newsletter]: document.getElementById('newsletter').checked ? 'Ja, ich möchte informiert werden' : ''
+            };
+            
+            // Erstelle vorausgefüllte URL
+            const baseUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSe6WSXM75jPJBFy4j-NU2LKCg0q6GweZT0uSCFUe7enVHMmfA/viewform';
+            const params = new URLSearchParams();
+            
+            // Füge nur nicht-leere Werte hinzu
+            for (let key in formData) {
+                if (formData[key]) {
+                    params.append(key, formData[key]);
+                }
+            }
+            
+            prefillUrl = `${baseUrl}?${params.toString()}`;
+            
+            // UI Update
+            document.getElementById('submitButton').disabled = true;
+            document.getElementById('loading').style.display = 'block';
+            
+            // Öffne Google Form in neuem Tab
+            setTimeout(() => {
+                console.log('Versuche Google Forms zu öffnen: ', prefillUrl);
+                const newWindow = window.open(prefillUrl, '_blank');
+                
+                if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                    console.error('Pop-up wurde blockiert!');
+                    // Fallback: Direkter Redirect
+                    if (confirm('Das Feedback-Formular konnte nicht in einem neuen Tab geöffnet werden (Pop-up Blocker).\n\nMöchten Sie direkt zu Google Forms weitergeleitet werden?')) {
+                        window.location.href = prefillUrl;
+                    } else {
+                        // Alternative: Link anzeigen
+                        document.getElementById('successMessage').innerHTML = `
+                            <h3>Link zum Feedback-Formular:</h3>
+                            <p>Bitte kopieren Sie diesen Link oder <a href="${prefillUrl}" target="_blank" style="color: white; text-decoration: underline;">klicken Sie hier</a>:</p>
+                            <p style="word-break: break-all; font-size: 12px; margin-top: 10px;">${prefillUrl}</p>
+                        `;
+                        document.getElementById('successMessage').style.display = 'block';
+                    }
+                } else {
+                    console.log('Google Forms erfolgreich geöffnet!');
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
+                }
+                
+                // Retry-Link
+                document.getElementById('retry-link').href = prefillUrl;
+                document.getElementById('retry-link').onclick = function() {
+                    window.open(prefillUrl, '_blank');
+                    return false;
+                };
+            }, 1000);
+        });
+        
+        // Bewertungs-Animation
+        const ratingInputs = document.querySelectorAll('.rating input[type="radio"]');
+        ratingInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                ratingInputs.forEach(r => {
+                    r.nextElementSibling.style.transform = 'scale(1)';
+                });
+                this.nextElementSibling.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    this.nextElementSibling.style.transform = 'scale(1)';
+                }, 200);
+            });
+        });
+        
+        } // Ende initializeFeedbackForm
+    </script>
+</body>
+</html>
