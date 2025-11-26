@@ -438,6 +438,18 @@
     </div>
     
     <script>
+        console.log('Feedback Script wird geladen...');
+        
+        // Warte bis DOM vollständig geladen ist
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeFeedbackForm);
+        } else {
+            initializeFeedbackForm();
+        }
+        
+        function initializeFeedbackForm() {
+            console.log('Initialisiere Feedback-Formular...');
+        
         // Entry IDs mapping
         const entryIds = {
             name: 'entry.1119087264',
@@ -460,12 +472,16 @@
         // Formular Submit Handler
         document.getElementById('feedbackForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            console.log('Button geklickt! Form submit ausgelöst.');
             
             // Validierung
             if (!this.checkValidity()) {
+                console.log('Validierung fehlgeschlagen - Pflichtfelder prüfen!');
                 this.reportValidity();
                 return;
             }
+            
+            console.log('Validierung erfolgreich, sammle Daten...');
             
             // Sammle Module
             const moduleCheckboxes = document.querySelectorAll('.module-cb:checked');
@@ -507,10 +523,28 @@
             
             // Öffne Google Form in neuem Tab
             setTimeout(() => {
-                window.open(prefillUrl, '_blank');
+                console.log('Versuche Google Forms zu öffnen: ', prefillUrl);
+                const newWindow = window.open(prefillUrl, '_blank');
                 
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('successMessage').style.display = 'block';
+                if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                    console.error('Pop-up wurde blockiert!');
+                    // Fallback: Direkter Redirect
+                    if (confirm('Das Feedback-Formular konnte nicht in einem neuen Tab geöffnet werden (Pop-up Blocker).\n\nMöchten Sie direkt zu Google Forms weitergeleitet werden?')) {
+                        window.location.href = prefillUrl;
+                    } else {
+                        // Alternative: Link anzeigen
+                        document.getElementById('successMessage').innerHTML = `
+                            <h3>Link zum Feedback-Formular:</h3>
+                            <p>Bitte kopieren Sie diesen Link oder <a href="${prefillUrl}" target="_blank" style="color: white; text-decoration: underline;">klicken Sie hier</a>:</p>
+                            <p style="word-break: break-all; font-size: 12px; margin-top: 10px;">${prefillUrl}</p>
+                        `;
+                        document.getElementById('successMessage').style.display = 'block';
+                    }
+                } else {
+                    console.log('Google Forms erfolgreich geöffnet!');
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
+                }
                 
                 // Retry-Link
                 document.getElementById('retry-link').href = prefillUrl;
@@ -534,6 +568,8 @@
                 }, 200);
             });
         });
+        
+        } // Ende initializeFeedbackForm
     </script>
 </body>
 </html>
